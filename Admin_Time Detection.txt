@@ -1,0 +1,6 @@
+Current Day,2018-10-15
+Current Period,Oct 18
+Current Year,2018
+Current Start,2018-06-25
+Current PeriodStart,W03
+Current Lookup,01
