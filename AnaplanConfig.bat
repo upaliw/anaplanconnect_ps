@@ -8,6 +8,9 @@
 :: Set username and password here for Basic Authentication
 set AnaplanUser="username:password"
 
+:: Set the certificate here for Anaplan Certificate Authentication
+set Certificate=".\certificates\anaplan_certificate.cer"
+
 :: Certification Authority based Certificate loaded into a Java KeyStore
 set Keystore=".\java_keystore\keystore_file.jks"
 set KeystoreAlias="Keystore_Alias"

@@ -24,14 +24,13 @@ call AnaplanConfig.bat
 set WorkspaceId=%2
 set ModelId=%3
 
-set Operation=-s %ServiceLocation% -auth %AuthenticationLocation% -file "ActionTimes.csv" -put "ActionTimes.csv" -process "Update Action Time" -execute
+set Operation=-file "ActionTimes.csv" -put "ActionTimes.csv" -process "Update Action Time" -execute
 
 rem *** End of settings - Do not edit below this line ***
-
 setlocal enableextensions enabledelayedexpansion || exit /b 1
 cd %~dp0
-set Credentials=-k %Keystore% -ka %KeystoreAlias% -kp %KeystorePassword%
-if not %AnaplanUser% == "" set Credentials=-user %AnaplanUser%
-set Command=.\AnaplanClient.bat %Credentials% -workspace %WorkspaceId% -model %ModelId% %Operation%
+set Credentials=-certificate %Certificate%
+if not %AnaplanUser% == "" set Credentials=-u %AnaplanUser%
+set Command=.\AnaplanClient.bat %Credentials% -w %WorkspaceId% -m %ModelId% %Operation%
 echo %Command%
 cmd /c %Command%
