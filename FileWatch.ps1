@@ -1,8 +1,8 @@
 ######################################################################
 # This script does a simple file watch based on the passed parameter
 # Author: 	Upali Wickramasinghe
-# Version: 	0.1
-# Date:		15/06/2018
+# Version: 	0.2
+# Date:		02/11/2018
 ######################################################################
 
 # Get the command line arguments
@@ -16,7 +16,7 @@ try {
     . $FunctionsFile
 }
 catch {
-    Write-Host "Error while loading supporting PowerShell Scripts" 
+    Write-Host "Error while loading supporting PowerShell Scripts" + $_.Exception.Message
 	exit 1
 }
 
@@ -41,16 +41,26 @@ function main() {
 	}
 	
 	# Split the Config entry into components
-	$config = $ConfigLine.split($ConfigSplit)
-	$FilePattern = $config[1]
-	$FileInbound = $config[4]
+	$Config = $ConfigLine.split($ConfigSplit)
+	$FilePattern = $Config[1]
+	$FileInbound = $Config[4]
 	
-	# Check if a file is available
-	$result = GetFileName $FileInbound $FilePattern
-	if ($result -eq "") {
+	# Validate
+	if ($FilePattern.Trim() -eq "" -or $FileInbound.Trim() -eq "") {
+		$LogMessage = $("Missing Config entries in: " + $ConfigLine)
+		WriteLog $LogFile "[ERROR]" $LogMessage
+		exit 1
+	}
+	
+	# Check if a file(s) are available
+	$Result = GetFileName $FileInbound $FilePattern
+	if ($Result -eq "") {
+		exit 1
+	} elseif ($Result.StartsWith("Error")) {
+		WriteLog $LogFile "[INFO]" $Result
 		exit 1
 	} else {
-		$LogMessage = $("Found file: " + $FileInbound + $result)
+		$LogMessage = $("Found file(s): " + $FileInbound + $Result)
 		WriteLog $LogFile "[INFO]" $LogMessage
 	}
 }
