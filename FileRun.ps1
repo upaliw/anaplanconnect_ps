@@ -83,7 +83,7 @@ function main() {
 			$FileLoadNameCount = $FileLoadName.split($FileSplit).Count
 			
 			if ($FileLoadNameCount -eq 1) {
-				$FileLoadNameIndex = $FileLoadName.split($FileSplit)[1]
+				$FileLoadNameIndex = $FileLoadName.split($FileSplit)[0]
 				
 				# Check if a file is available
 				if ($FileLoad.Trim() -ne "" -and $FileLoadNameIndex.Trim() -ne "") {
