@@ -1,20 +1,27 @@
 ######################################################################
 # This is a generic set of re-usable functions
 # Author: 	Upali Wickramasinghe
-# Version: 	0.2
-# Date:		29/10/2018
+# Version: 	0.3
+# Date:		22/01/2019
 ######################################################################
 
 # Define any constants
-$ConfigFile 	= ".\FileInterfaces.ini"
-$ConfigSplit 	= ";"
-$FileSplit		= "|"
-$NotificationFile = ".\EmailNotifications.ini"
-$NotificationSplit= "="
+$ConfigDir		= ".\config\"
 $LogDir 		= ".\logs"
 $ExceptionDir	= "exceptions"
+
+$ConfigFile 	= $($ConfigDir + "FileInterfaces.ini")
+$NotificationFile = $($ConfigDir + "EmailNotifications.ini")
+$SQLConfigFile 	= $($ConfigDir + "SQLInterfaces.ini")
+
+$ConfigSplit 	= ";"
+$FileSplit		= "|"
+$NotificationSplit= "="
+$SQLConfigSplit	= "="
+
 $AnaplanConnectActionTimes = ".\ActionTimes.bat"
 $AnaplanConnectAction = ".\AnaplanAction.bat"
+
 $STDOUTFile		= ".\stdout.txt"
 $STDERRFile		= ".\stderr.txt"
 
@@ -105,6 +112,63 @@ function GetNextFileName($FileLocation, $FileName) {
 	return $Result
 }
 
+# Generate a Properties file for SQL connections
+function GenerateSQLConfig($SQLConfigLine) {
+	$Result = ""
+	
+	$SQLConfig = $SQLConfigLine.split($ConfigSplit)
+	$SQLKey = $SQLConfig[0]
+	$SQLConnection = $SQLConfig[1]
+	$SQLFetch = $SQLConfig[2]
+	$SQLStoredProc = $SQLConfig[3]
+	$SQLString = $SQLConfig[4]
+	$SQLParams = $SQLConfig[5]
+	
+	$URL = ""
+	$USERNAME = ""
+	$PASSWORD = ""
+			
+	foreach($Line in Get-Content $($ConfigDir + $SQLConnection)) {
+		if ($Line.StartsWith(" ") -or $Line.StartsWith("#")) {continue}
+
+		$Config = $Line.split($SQLConfigSplit)
+		if ($Config[0] -eq "URL") {$URL = $Config[1]}
+		if ($Config[0] -eq "USERNAME") {$USERNAME = $Config[1]}
+		if ($Config[0] -eq "PASSWORD") {$PASSWORD = $Config[1]}
+	}
+		
+	if ($URL.Trim() -ne "" -and $USERNAME.Trim() -ne "" -and $PASSWORD.Trim() -ne "") {
+		$ResultFile = $($ConfigDir + $SQLKey + ".properties")
+		
+		$SQLString = $("jdbc.connect.url=" + $URL)
+		$SQLString > $ResultFile
+		
+		$SQLString = $("jdbc.username=" + $USERNAME)
+		$SQLString >> $ResultFile
+
+		$SQLString = $("jdbc.password=" + $PASSWORD)
+		$SQLString >> $ResultFile
+
+		$SQLString = $("jdbc.fetch.size=" + $SQLFetch)
+		$SQLString >> $ResultFile
+
+		$SQLString = $("jdbc.isStoredProcedure=" + $SQLStoredProc)
+		$SQLString >> $ResultFile
+
+		$SQLString = $("jdbc.query=" + $SQLString)
+		$SQLString >> $ResultFile
+
+		if ($SQLParams.Trim() -ne "") {
+			$SQLString = $("jdbc.params=" + $SQLParams)
+			$SQLString >> $ResultFile
+		}
+		
+		$Result = $ResultFile
+	}
+
+	return $Result
+}
+
 # Send email notification if required
 function EmailNotify($NotifyEmail, $EmailStatus, $FileLoadName, $FileLoadAction, $ExceptionFile) {
 	# Read the required parameters
@@ -157,7 +221,7 @@ function EmailNotify($NotifyEmail, $EmailStatus, $FileLoadName, $FileLoadAction,
 				$SMTPClient.EnableSsl = $True 
 			}
 			
-			$PasswordFile = ".\EmailPassword.txt"
+			$PasswordFile = $($ConfigDir + "EmailPassword.txt")
 			if ((Get-Content $PasswordFile) -ne $Null) {
 				$Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, (Get-Content $PasswordFile | ConvertTo-SecureString)
 				$SMTPClient.Credentials = New-Object System.Net.NetworkCredential($Cred.UserName, $Cred.Password);

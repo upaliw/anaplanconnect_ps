@@ -1,8 +1,8 @@
 ######################################################################
 # This script does a simple file watch based on the passed parameter
 # Author: 	Upali Wickramasinghe
-# Version: 	0.2
-# Date:		02/11/2018
+# Version: 	0.3
+# Date:		22/01/2018
 ######################################################################
 
 # Get the command line arguments

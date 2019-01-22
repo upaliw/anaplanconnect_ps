@@ -1,8 +1,8 @@
 ######################################################################
 # This script does calls an Anaplan Connect to run an Action
 # Author: 	Upali Wickramasinghe
-# Version: 	0.2
-# Date:		29/10/2018
+# Version: 	0.3
+# Date:		22/01/2019
 ######################################################################
 
 # Get the command line arguments
@@ -16,7 +16,7 @@ try {
     . $FunctionsFile
 }
 catch {
-    Write-Host "Error while loading supporting PowerShell Scripts" 
+    Write-Host "Error while loading supporting PowerShell Scripts" + " Error: " + $_.Exception.Message
 	exit 1
 }
 
@@ -51,7 +51,7 @@ function main() {
 	$NotifyEmail = $Config[9]
 	$ActionType = $Config[10].ToUpper()
 	$ExportFile = $Config[11]
-	$JDBCFile = $Config[12]
+	$JDBCConfig = $Config[12]
 	$WorkspaceGUID = $Config[13]
 	$ModelGUID = $Config[14]
 	
@@ -123,14 +123,38 @@ function main() {
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,`"$ActionString`",$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile		
 			
 		} elseif ($ActionType -eq "EXPORT") {
+		
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction,$ExportFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile
+
 		} elseif ($ActionType -eq "ACTION") {
+			
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile			
+
 		} elseif ($ActionType -eq "PROCESS") {
+			
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile			
-		} elseif ($ActionType -eq "JDBCIMPORT") {
-			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$FileLoadName,$JDBCFile,$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile
-		} elseif ($ActionType -eq "JDBCPROCESS") {
+
+		} elseif ($ActionType -eq "JDBCIMPORT" -or $ActionType -eq "JDBCPROCESS") {
+			
+			# Get the SQL Config entry
+			$SQLConfigLine = GetConfig $SQLConfigFile $JDBCConfig
+			if ($SQLConfigLine.Trim() -eq "") {
+				$LogMessage = $("Missing Config entry: " + $JDBCConfig)
+				WriteLog $LogFile "[ERROR]" $LogMessage
+				exit 1
+			}
+
+			$SQLConfig = $SQLConfigLine.split($ConfigSplit)
+			$SQLConnection = $SQLConfig[1]
+
+			if (Test-Path $($ConfigDir + $SQLConnection)) {
+				$JDBCFile = GenerateSQLConfig $SQLConfigLine				
+			} else {
+				$LogMessage = $("Missing SQL Connection file: " + $SQLConnection)
+				WriteLog $LogFile "[ERROR]" $LogMessage
+				exit 1				
+			}
+		
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$FileLoadName,$JDBCFile,$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile
 		}
 

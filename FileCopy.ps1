@@ -1,8 +1,8 @@
 ######################################################################
 # This script does a simple file move based on the passed parameter
 # Author: 	Upali Wickramasinghe
-# Version: 	0.2
-# Date:		02/11/2018
+# Version: 	0.3
+# Date:		22/01/2019
 ######################################################################
 
 # Get the command line arguments
@@ -16,7 +16,7 @@ try {
     . $FunctionsFile
 }
 catch {
-    Write-Host "Error while loading supporting PowerShell Scripts" 
+    Write-Host "Error while loading supporting PowerShell Scripts" + $_.Exception.Message
 	exit 1
 }
 
