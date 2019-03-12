@@ -85,14 +85,14 @@ function main() {
 		WriteLog $LogFile "[INFO]" $LogMessage
 		
 		try {
-			Move-Item -Path $Source -Destination $Dest -Force -ErrorAction Stop
+			Move-Item -Path "$Source" -Destination "$Dest" -Force -ErrorAction Stop
 		} catch {
-			$LogMessage = $("Error moving file from: " + $Source + " to: " + $Dest + " Error: " + $_.Exception.Message)
+			$LogMessage = $("Error moving file from: " + "$Source" + " to: " + "$Dest" + " Error: " + $_.Exception.Message)
 			WriteLog $LogFile "[ERROR]" $LogMessage
 			exit 1
 		}
 		
-		$LogMessage = $("Moved file from: " + $Source + " to: " + $Dest)
+		$LogMessage = $("Moved file from: " + "$Source" + " to: " + "$Dest")
 		WriteLog $LogFile "[INFO]" $LogMessage
 	}
 }

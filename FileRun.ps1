@@ -117,7 +117,7 @@ function main() {
 				}
 				
 				# Build ActionString
-				$ActionString = $($ActionString + " -file " + $FileLoadNameIndex + " -put " + $Source )
+				$ActionString = $($ActionString + " -file " + $FileLoadNameIndex + " -put " + $Source)
 			}
 
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,`"$ActionString`",$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile		
@@ -156,6 +156,10 @@ function main() {
 			}
 		
 			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$FileLoadName,$JDBCFile,$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile
+			
+		} elseif ($ActionType -eq "Custom") {
+			
+			Start-Process "cmd" -ArgumentList '/c',$AnaplanAction,$WorkspaceGUID,$ModelGUID,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile
 		}
 
 	} catch {
@@ -209,29 +213,36 @@ function main() {
 	
 	# Check if the DateStamp backup folder exists, if not create it
 	if ($FileBackup.Trim() -ne "" -and $FileBackupName.Trim() -ne "") {
-		$Source = $($FileLoad + $FileLoadName)
 		$Backup = $($FileBackup + $DateStamp + "\")
 		
 		if (!(Test-Path -path $Backup)) {
 			New-Item $Backup -Type Directory
 		}
+		
+		# Iterate through all the files and Backup
+		$IndexCount = $FileBackupName.split($FileSplit).Count
+		for ($i=0; $i -lt $IndexCount; $i++) {				
+			$FileLoadNameIndex = $FileLoadName.split($FileSplit)[$i]
+			$FileBackupNameIndex = $FileBackupName.split($FileSplit)[$i]
 
-		$FileBackupNextName = GetNextFileName $Backup $FileBackupName
-		$Dest = $($Backup + $FileBackupNextName)
-		
-		# Backup the file
-		$LogMessage = $("Backing up file from: " + $Source + " to: " + $Dest)
-		WriteLog $LogFile "[INFO]" $LogMessage
-		try {
-			Copy-Item -Path $Source -Destination $Dest -Force -ErrorAction Stop
-		} catch {
-			$LogMessage = $("Error copying file from: " + $Source + " to: " + $Dest + " Error: " + $_.Exception.Message)
-			WriteLog $LogFile "[ERROR]" $LogMessage
-			exit 1
+			$Source = $($FileLoad + $FileLoadNameIndex)
+			$FileBackupNextName = GetNextFileName $Backup $FileBackupNameIndex
+			$Dest = $($Backup + $FileBackupNextName)
+			
+			# Backup the file
+			$LogMessage = $("Backing-up file from: " + $Source + " to: " + $Dest)
+			WriteLog $LogFile "[INFO]" $LogMessage
+			try {
+				Copy-Item -Path $Source -Destination $Dest -Force -ErrorAction Stop
+			} catch {
+				$LogMessage = $("Error copying file from: " + $Source + " to: " + $Dest + " Error: " + $_.Exception.Message)
+				WriteLog $LogFile "[ERROR]" $LogMessage
+				exit 1
+			}
+			
+			$LogMessage = $("Backed-up file from: " + $Source + " to: " + $Dest)
+			WriteLog $LogFile "[INFO]" $LogMessage
 		}
-		
-		$LogMessage = $("Baked-up file from: " + $Source + " to: " + $Dest)
-		WriteLog $LogFile "[INFO]" $LogMessage
 	}
 }
 

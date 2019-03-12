@@ -1,7 +1,7 @@
 @echo off
 rem This is the main process to interact with Anaplan using AnaplanConnect 
 
-call AnaplanConfig.bat
+call ./config/AnaplanConfig.bat
 
 set WorkspaceId=%2
 set ModelId=%3

@@ -19,12 +19,12 @@ set actionStart=%yyyy%-%mm%-%dd% %h%:%m%:%s%
 @echo "Action Name","Action Date"> %FileName%
 @echo "%actionName%","%actionStart%">> %FileName%
 
-call AnaplanConfig.bat
+call ./config/AnaplanConfig.bat
 
 set WorkspaceId=%2
 set ModelId=%3
 
-set Operation=-s %ServiceLocation% -auth %AuthenticationLocation% -file "ActionTimes.csv" -put "ActionTimes.csv" -process "Update Action Time" -execute
+set Operation=-file "ActionTimes.csv" -put "ActionTimes.csv" -process "Update Action Time" -execute
 
 rem *** End of settings - Do not edit below this line ***
 
@@ -32,6 +32,6 @@ setlocal enableextensions enabledelayedexpansion || exit /b 1
 cd %~dp0
 set Credentials=-k %Keystore% -ka %KeystoreAlias% -kp %KeystorePassword%
 if not %AnaplanUser% == "" set Credentials=-user %AnaplanUser%
-set Command=.\AnaplanClient.bat %Credentials% -workspace %WorkspaceId% -model %ModelId% %Operation%
+set Command=.\AnaplanClient.bat -s %ServiceLocation% -auth %AuthenticationLocation% %Credentials% -w %WorkspaceId% -m %ModelId% %Operation%
 echo %Command%
 cmd /c %Command%

@@ -106,7 +106,9 @@ function GetNextFileName($FileLocation, $FileName) {
 		
 		$Latest = Get-ChildItem -Path $Dest| Sort-Object Name -Descending | Select-Object -First 1
 		#split the latest filename, increment the number, then re-assemble new filename:
-		$Result = $Latest.BaseName.Split('_')[0] + "_" + ([int]$Latest.BaseName.Split('_')[1] + 1).ToString().PadLeft(4, "0") + $Latest.Extension
+		$Result = $Latest.BaseName.Split('~')[0] + "~" + ([int]$Latest.BaseName.Split('~')[1] + 1).ToString().PadLeft(4, "0") + $Latest.Extension
+	} else {
+		$Result = $Filename
 	}
 	
 	return $Result
