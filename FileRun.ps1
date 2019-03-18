@@ -128,11 +128,11 @@ function main() {
 
 		} elseif ($ActionType -eq "ACTION") {
 			
-			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile			
+			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile			
 
 		} elseif ($ActionType -eq "PROCESS") {
 			
-			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile			
+			Start-Process "cmd" -ArgumentList '/c',$AnaplanConnectAction,$ActionType,$WorkspaceGUID,$ModelGUID,$AnaplanAction,$ExceptionFile -Wait -NoNewWindow -RedirectStandardOutput $STDOUTFile -RedirectStandardError $STDERRFile			
 
 		} elseif ($ActionType -eq "JDBCIMPORT" -or $ActionType -eq "JDBCPROCESS") {
 			
