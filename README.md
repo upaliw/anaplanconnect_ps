@@ -1,2 +1,2 @@
 # anaplanconnect_ps
-Anaplan Connect 1.4 helper scripts in PowerShell
+Anaplan Connect 1.4.1 helper scripts in PowerShell
