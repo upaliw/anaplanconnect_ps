@@ -1,8 +1,8 @@
 ######################################################################
 # This script does calls an Anaplan Connect to run an Action
 # Author: 	Upali Wickramasinghe
-# Version: 	0.3
-# Date:		22/01/2019
+# Version: 	0.4
+# Date:		2/03/2020
 ######################################################################
 
 # Get the command line arguments
@@ -243,6 +243,28 @@ function main() {
 			$LogMessage = $("Backed-up file from: " + $Source + " to: " + $Dest)
 			WriteLog $LogFile "[INFO]" $LogMessage
 		}
+	}
+	
+	# Delete the temp files used for loading
+	$IndexCount = $FileLoadName.split($FileSplit).Count
+	for ($i=0; $i -lt $IndexCount; $i++) {				
+		$FileLoadNameIndex = $FileLoadName.split($FileSplit)[$i]
+
+		$Source = $($FileLoad + $FileLoadNameIndex)
+		
+		# Delete the file
+		$LogMessage = $("Deleting file from: " + $Source)
+		WriteLog $LogFile "[INFO]" $LogMessage
+		try {
+			Remove-Item -Path $Source -Force -ErrorAction Stop
+		} catch {
+			$LogMessage = $("Error deleting file from: " + $Source + " Error: " + $_.Exception.Message)
+			WriteLog $LogFile "[ERROR]" $LogMessage
+			exit 1
+		}
+		
+		$LogMessage = $("Deleted file from: " + $Source)
+		WriteLog $LogFile "[INFO]" $LogMessage
 	}
 }
 
